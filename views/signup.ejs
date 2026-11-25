@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f9; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .form-container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        h2 { text-align: center; color: #333; }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; color: #666; }
+        input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; }
+        button:hover { background-color: #45a049; }
+        #message { margin-top: 15px; text-align: center; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="form-container">
+        <h2>Create Account</h2>
+        <!-- action aur method hata diye hain taaki JS handle kare -->
+        <form id="signupForm">
+            <div class="input-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="input-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" minlength="6" required>
+            </div>
+            <button type="submit">Sign Up</button>
+        </form>
+        
+        <!-- Success ya Error message yahan show hoga -->
+        <div id="message"></div>
+
+        <div class="switch-link" style="text-align: center; margin-top: 15px;">
+            Already have an account? <a href="/login" style="color: #4CAF50; text-decoration: none;">Login</a>
+        </div>
+    </div>
+
+  <script>
+    const form = document.getElementById('signupForm');
+    const messageDiv = document.getElementById('message');
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault(); // Page refresh hone se rokein
+        console.log("Form submit ho gaya!"); // <-- Yeh check karne ke liye ke event chal raha hai ya nahi
+
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        try {
+            const response = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, email, password })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                messageDiv.style.color = 'green';
+                messageDiv.innerText = data.message;
+                localStorage.setItem('token', data.token);
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 2000);
+            } else {
+                messageDiv.style.color = 'red';
+                messageDiv.innerText = data.message;
+            }
+        } catch (error) {
+            console.log("Fetch error:", error); // <-- Agar network ki taraf se koi masla ho
+            messageDiv.style.color = 'red';
+            messageDiv.innerText = 'Something went wrong!';
+        }
+    });
+</script>
+</body>
+</html>
